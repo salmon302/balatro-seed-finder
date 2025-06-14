@@ -7,8 +7,15 @@ struct LegendarySource {
     std::string source;
 };
 
-std::string arcanaPackNegLeg(Instance inst, int ante, int packSize) {
-    auto cards = inst.nextArcanaPack(packSize, ante);
+std::string packNextLeg(Instance inst, int ante, std::string packType, int packSize) {
+    std::vector<std::string> cards;
+    if(fast_string_equals(packType, "Arcana Pack")) {
+        cards = inst.nextArcanaPack(packSize, ante);
+    } else if(fast_string_equals(packType, "Spectral Pack")) {
+        cards = inst.nextSpectralPack(packSize, ante);
+    } else {
+        return "";
+    }
     bool foundSoul = false;
     for (int c = 0; c < packSize; c++) {
         if (fast_string_equals(cards[c], "The Soul")) {
@@ -24,13 +31,19 @@ std::string arcanaPackNegLeg(Instance inst, int ante, int packSize) {
     return "";
 }
 
-std::string nextTagIsCharmWithSoulAndNegLegendary(Instance inst, int ante) {
-    if(!fast_string_equals(inst.nextTag(ante), "Charm Tag")) return "";
-    return arcanaPackNegLeg(inst, 1, 5);
+std::string nextTagWithSoulAndNegLegendary(Instance inst, int ante) {
+    auto tag = inst.nextTag(ante);
+    if(fast_string_equals(tag, "Charm Tag")) {
+        return packNextLeg(inst, ante, "Arcana Pack", 5);
+    }
+    if(fast_string_equals(tag, "Ethereal Tag")) {
+        return packNextLeg(inst, ante, "Spectral Pack", 2);
+    }
+    return "";
 }
 
 LegendarySource charmTagOrShopForNegLegendary(Instance inst, int nShop) {
-    auto tagLeg = nextTagIsCharmWithSoulAndNegLegendary(inst, 1);
+    auto tagLeg = nextTagWithSoulAndNegLegendary(inst, 1);
     LegendarySource s;
     if(tagLeg.length() == 0) {
         // We don't skip so check the shop
@@ -39,11 +52,7 @@ LegendarySource charmTagOrShopForNegLegendary(Instance inst, int nShop) {
             inst.nextPack(1);
         }
         auto p = packInfo(inst.nextPack(1));
-        if(fast_string_equals(p.type, "Arcana Pack")) {
-            s.legendary = arcanaPackNegLeg(inst, 1, p.size);
-            s.source = "shop";
-            return s;
-        }
+        s.legendary = packNextLeg(inst, 1, p.type, p.size);
         s.source = "shop";
         return s; 
     }
