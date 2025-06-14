@@ -111,3 +111,7 @@ INLINE_FORCE double round13(double x) {
 INLINE_FORCE bool fast_string_equals(const std::string& a, const char* b) {
     return a.length() > 0 && a[0] == b[0] && a == b;
 }
+
+INLINE_FORCE bool fast_string_equals(const std::string& a, const std::string& b) {
+    return a.length() > 0 && a[0] == b[0] && a == b;
+}

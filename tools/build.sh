@@ -17,11 +17,11 @@ fi
 FILTER_NAME=$1
 
 # Validate filter exists
-FILTER_FILE="../filters/${FILTER_NAME}_filter.hpp"
+FILTER_FILE="filters/${FILTER_NAME}_filter.hpp"
 if [ ! -f "$FILTER_FILE" ]; then
     echo "Error: Filter file $FILTER_FILE not found!"
     echo "Available filters:"
-    for filter in ../filters/*_filter.hpp; do
+    for filter in filters/*_filter.hpp; do
         if [ -f "$filter" ]; then
             basename="$(basename "$filter" _filter.hpp)"
             echo "  $basename"
