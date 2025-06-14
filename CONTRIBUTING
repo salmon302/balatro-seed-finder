@@ -1,0 +1,150 @@
+# Contributing to Balatro Seed Finder
+
+Thank you for your interest in contributing to Balatro Seed Finder! This guide will help you get started with contributing to the project.
+
+## Getting Started
+
+### Prerequisites
+
+- C++ compiler with C++17 support
+- Basic understanding of Balatro game mechanics
+- Familiarity with multithreaded programming (for core engine contributions)
+
+### Development Setup
+
+1. **Fork and Clone**
+   ```bash
+   git clone https://github.com/your-username/balatro-seed-finder.git
+   cd balatro-seed-finder
+   ```
+
+2. **Build the Project**
+   ```bash
+   cd tools
+   ./build.sh perkeo  # Build with any existing filter to test setup
+   ```
+
+3. **Test Your Setup**
+   ```bash
+   ./dist/immolate_perkeo --help  # Should run without errors
+   ```
+
+## Types of Contributions
+
+### 1. New Search Filters
+
+The most common contribution is creating new search filters. See `filters/README.md` for detailed filter development guide.
+
+**Quick Filter Development Process:**
+1. Create a new `.hpp` file in `filters/` directory
+2. Implement the `SearchFilter` interface or use lambda-based approach
+3. Test your filter with `./build.sh your_filter_name`
+4. Update available filters list in `CLAUDE.md` and `README.md`
+
+### 2. Core Engine Improvements
+
+For performance optimizations, bug fixes, or new simulation features:
+- Focus on `immolate.cpp`, `instance.hpp`, `functions.hpp`
+- Ensure thread safety for any shared state modifications
+- Test performance impact with existing filters
+
+### 3. Build System and Tooling
+
+Improvements to build scripts, profiling tools, or development utilities:
+- Modify scripts in `tools/` directory
+- Ensure cross-platform compatibility where possible
+- Update documentation for any new tools
+
+## Development Guidelines
+
+### Code Style
+
+- Follow existing C++ coding conventions in the codebase
+- Use descriptive variable names, especially for game mechanics
+- Comment complex game simulation logic
+- Keep performance-critical paths optimized (hot functions should be inline)
+
+### Filter Development Best Practices
+
+- **Performance First**: Return early from `apply()` when no match is possible
+- **Clear Naming**: Use descriptive result names that players understand
+- **Comprehensive Testing**: Test edge cases and various game states
+- **Documentation**: Explain what combinations your filter searches for
+
+### Testing
+
+- Test your changes with multiple filter types
+- Verify output format remains consistent
+- For performance changes, compare before/after with profiling tools
+- Test with different starting seeds to ensure correctness
+
+## Submitting Changes
+
+### Pull Request Process
+
+1. **Create Feature Branch**
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+
+2. **Make Your Changes**
+   - Follow the coding guidelines above
+   - Update documentation as needed
+   - Test thoroughly
+
+3. **Update Documentation**
+   - Add new filters to available filters list in `CLAUDE.md`
+   - Update `README.md` if adding new features
+   - Document any new build requirements
+
+4. **Submit Pull Request**
+   - Use descriptive title and detailed description
+   - Reference any related issues
+   - Include testing information
+
+### Pull Request Requirements
+
+- [ ] Code compiles without warnings
+- [ ] New filters work with build system
+- [ ] Documentation updated appropriately
+- [ ] No breaking changes to existing filters (unless discussed)
+- [ ] Performance impact considered and documented
+
+## Common Development Tasks
+
+### Adding a New Filter
+
+1. Create `filters/your_filter_name_filter.hpp`
+2. Implement filter logic following existing patterns
+3. Test: `cd tools && ./build.sh your_filter_name`
+4. Add to available filters list in documentation
+
+### Performance Optimization
+
+1. Profile current performance: `tools/profile_with_instruments.sh`
+2. Make targeted improvements
+3. Re-profile to measure impact
+4. Document performance changes in PR
+
+### Debugging Game Simulation
+
+- Use simple filters (like `charm_tag`) to isolate issues
+- Add debug prints to `Instance` methods to trace game state
+- Compare with known Balatro behavior patterns
+
+## Getting Help
+
+- **Questions about filters**: See `filters/README.md` for comprehensive guide
+- **Build issues**: Check that you have a C++17 compatible compiler
+- **Game mechanics**: Reference existing filters for patterns
+- **Performance concerns**: Use the profiling tools in `tools/`
+
+For further help, you can open a Github Issue. Please describe your problem extensively.
+
+## Attribution
+
+This project builds upon the excellent work of the [SpectralPack](https://github.com/SpectralPack/) team, particularly [TheSoul](https://github.com/SpectralPack/TheSoul) and [Immolate](https://github.com/SpectralPack/TheSoul). When contributing, please maintain the same high standards of simulation accuracy and performance.
+
+## License
+
+By contributing to this project, you agree that your contributions will be licensed under the same license as the project.
