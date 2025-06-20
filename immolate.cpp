@@ -52,8 +52,8 @@ SearchFilter* getCurrentFilter() {
     return g_currentFilter.get();
 }
 
-int applyCurrentFilter(const std::string& seed) {
-    return getCurrentFilter()->apply(seed);
+int applyCurrentFilter(const std::string& seed, std::ostream& debugOut) {
+    return getCurrentFilter()->apply(seed, debugOut);
 }
 
 uint64_t seedToNumber(const std::string& seed) {
@@ -165,7 +165,7 @@ void logMatch(const std::string& seed, int matchLevel, std::ostream& csvFile, st
     csvFile.flush();
 }
 
-void searchWorker(std::atomic<bool>& found, std::string& result, std::mutex& resultMutex, SearchStats& stats, uint64_t startSeed, int threadId, std::ostream& csvFile, std::mutex& csvMutex) {
+void searchWorker(std::atomic<bool>& found, std::string& result, std::mutex& resultMutex, SearchStats& stats, uint64_t startSeed, int threadId, std::ostream& csvFile, std::mutex& csvMutex, std::ostream& debugOut) {
     const unsigned int numThreads = std::thread::hardware_concurrency();
     uint64_t currentNumber = startSeed + threadId;
     
@@ -174,7 +174,7 @@ void searchWorker(std::atomic<bool>& found, std::string& result, std::mutex& res
         stats.currentSeedNumber.store(currentNumber);
         
         stats.totalSeeds++;
-        int matchLevel = applyCurrentFilter(seed);
+        int matchLevel = applyCurrentFilter(seed, debugOut);
         
         if (matchLevel > 0) {
             // Update configurable results
@@ -196,14 +196,51 @@ int main(int argc, char* argv[]) {
     
     // Parse command line arguments
     uint64_t startSeedNumber = 0;
+    bool debugMode = false;
+    std::string debugSeed;
+    
     if (argc > 1) {
         std::string startSeedStr = argv[1];
         if (startSeedStr.length() == 8) {
             startSeedNumber = seedToNumber(startSeedStr);
+            debugSeed = startSeedStr;
             std::cout << "Starting from seed: " << startSeedStr << " (" << startSeedNumber << ")" << std::endl;
+            
+            // Check for debug flag
+            if (argc > 2 && std::string(argv[2]) == "-d") {
+                debugMode = true;
+                std::cout << "Debug mode enabled for seed: " << startSeedStr << std::endl;
+            }
         } else {
             std::cout << "Invalid seed format. Expected 8 characters (A-Z, 1-9). Starting from AAAAAAAA." << std::endl;
         }
+    }
+    
+    // Handle debug mode
+    if (debugMode) {
+        // Create debug output file
+        std::string debugFilename = "debug_" + debugSeed + ".txt";
+        std::ofstream debugFile(debugFilename);
+        if (!debugFile.is_open()) {
+            std::cerr << "Error: Could not create debug file: " << debugFilename << std::endl;
+            return 1;
+        }
+        
+        std::cout << "Running debug mode for seed: " << debugSeed << std::endl;
+        std::cout << "Debug output will be written to: " << debugFilename << std::endl;
+        
+        // Run filter on the single seed (filter will write debug info to debugFile)
+        int matchLevel = applyCurrentFilter(debugSeed, debugFile);
+        
+        debugFile.close();
+        
+        // Print results to console
+        std::cout << "Debug complete!" << std::endl;
+        std::cout << "Seed: " << debugSeed << std::endl;
+        std::cout << "Match Level: " << matchLevel << std::endl;
+        std::cout << "Debug output written to: " << debugFilename << std::endl;
+        
+        return 0;
     }
     
     // Create CSV file with timestamp
@@ -241,6 +278,9 @@ int main(int argc, char* argv[]) {
     SearchFilter* currentFilter = getCurrentFilter();
     stats.initializeResults(currentFilter->getResultNames());
     
+    // Create null stream for filter debug output (since debug mode is disabled in normal search)
+    std::ofstream nullStream("/dev/null");
+    
     unsigned int numThreads = std::thread::hardware_concurrency();
     if (numThreads == 0) numThreads = 4;
     
@@ -251,7 +291,7 @@ int main(int argc, char* argv[]) {
     
     std::vector<std::thread> threads;
     for (unsigned int i = 0; i < numThreads; i++) {
-        threads.emplace_back(searchWorker, std::ref(found), std::ref(result), std::ref(resultMutex), std::ref(stats), startSeedNumber, i, std::ref(csvFile), std::ref(csvMutex));
+        threads.emplace_back(searchWorker, std::ref(found), std::ref(result), std::ref(resultMutex), std::ref(stats), startSeedNumber, i, std::ref(csvFile), std::ref(csvMutex), std::ref(nullStream));
     }
     
     // Stats display thread
@@ -280,7 +320,6 @@ int main(int argc, char* argv[]) {
 
     #endif
 
-    
     
     // Final stats display
     displayStats(stats, startTime);

@@ -82,7 +82,7 @@ extern const char* THE_SOUL;
 
 class MyCustomFilter : public SearchFilter {
 public:
-    int apply(const std::string& seed) override {
+    int apply(const std::string& seed, std::ostream& debugOut = std::cout) override {
         std::vector<bool> selectedOptions(61, true);
         Instance inst = initInstance(seed, selectedOptions);
         
@@ -116,7 +116,7 @@ std::unique_ptr<SearchFilter> createFilter() {
 // Forward declarations and constants as above...
 
 std::unique_ptr<SearchFilter> createFilter() {
-    auto filterFunc = [](const std::string& seed) -> int {
+    auto filterFunc = [](const std::string& seed, std::ostream& debugOut) -> int {
         std::vector<bool> selectedOptions(61, true);
         Instance inst = initInstance(seed, selectedOptions);
         

@@ -286,8 +286,41 @@ enum ItemID : size_t {
     
     // Special cards
     THE_SOUL_CARD = 250,
-    BLACK_HOLE_CARD = 251
-    // Can expand up to 256 or more as needed
+    BLACK_HOLE_CARD = 251,
+    
+    // Missing bosses
+    THE_CLUB = 252,
+    AMBER_ACORN = 253,
+    CERULEAN_BELL = 254,
+    CRIMSON_HEART = 255,
+    VERDANT_LEAF = 256,
+    VIOLET_VESSEL = 257,
+    THE_GOAD = 258,
+    THE_HEAD = 259,
+    THE_HOOK = 260,
+    THE_MANACLE = 261,
+    THE_PILLAR = 262,
+    THE_PSYCHIC = 263,
+    THE_WINDOW = 264,
+    
+    // Missing vouchers
+    OVERSTOCK = 265,
+    CLEARANCE_SALE = 266,
+    HONE = 267,
+    REROLL_SURPLUS = 268,
+    CRYSTAL_BALL = 269,
+    TELESCOPE = 270,
+    GRABBER = 271,
+    WASTEFUL = 272,
+    TAROT_MERCHANT = 273,
+    PLANET_MERCHANT = 274,
+    SEED_MONEY = 275,
+    BLANK = 276,
+    MAGIC_TRICK = 277,
+    HIEROGLYPH = 278,
+    DIRECTORS_CUT = 279,
+    PAINT_BRUSH = 280
+    // Can expand up to 512 or more as needed
 };
 
 // Global lookup table for string -> bit position
@@ -348,7 +381,7 @@ static const std::unordered_map<std::string, ItemID> ITEM_TO_ID = {
     {"Brainstorm", BRAINSTORM},
     {"Satellite", SATELLITE},
     {"Shoot the Moon", SHOOT_THE_MOON},
-    {"Driver's License", DRIVERS_LICENSE},
+    {"Drivers License", DRIVERS_LICENSE},
     {"Cartomancer", CARTOMANCER},
     {"Astronomer", ASTRONOMER},
     {"Burnt Joker", BURNT_JOKER},
@@ -560,11 +593,44 @@ static const std::unordered_map<std::string, ItemID> ITEM_TO_ID = {
     
     // Special cards
     {"The Soul", THE_SOUL_CARD},
-    {"Black Hole", BLACK_HOLE_CARD}
+    {"Black Hole", BLACK_HOLE_CARD},
+    
+    // Missing bosses
+    {"The Club", THE_CLUB},
+    {"Amber Acorn", AMBER_ACORN},
+    {"Cerulean Bell", CERULEAN_BELL},
+    {"Crimson Heart", CRIMSON_HEART},
+    {"Verdant Leaf", VERDANT_LEAF},
+    {"Violet Vessel", VIOLET_VESSEL},
+    {"The Goad", THE_GOAD},
+    {"The Head", THE_HEAD},
+    {"The Hook", THE_HOOK},
+    {"The Manacle", THE_MANACLE},
+    {"The Pillar", THE_PILLAR},
+    {"The Psychic", THE_PSYCHIC},
+    {"The Window", THE_WINDOW},
+    
+    // Missing vouchers
+    {"Overstock", OVERSTOCK},
+    {"Clearance Sale", CLEARANCE_SALE},
+    {"Hone", HONE},
+    {"Reroll Surplus", REROLL_SURPLUS},
+    {"Crystal Ball", CRYSTAL_BALL},
+    {"Telescope", TELESCOPE},
+    {"Grabber", GRABBER},
+    {"Wasteful", WASTEFUL},
+    {"Tarot Merchant", TAROT_MERCHANT},
+    {"Planet Merchant", PLANET_MERCHANT},
+    {"Seed Money", SEED_MONEY},
+    {"Blank", BLANK},
+    {"Magic Trick", MAGIC_TRICK},
+    {"Hieroglyph", HIEROGLYPH},
+    {"Director's Cut", DIRECTORS_CUT},
+    {"Paint Brush", PAINT_BRUSH}
 };
 
-// Use a bitset with enough bits for all items (256 should be plenty)
-using LockBitset = std::bitset<256>;
+// Use a bitset with enough bits for all items (512 should be plenty)
+using LockBitset = std::bitset<512>;
 
 // Fast bitset operations
 INLINE_FORCE void lockItem(LockBitset& lockBitmap, ItemID itemId) {

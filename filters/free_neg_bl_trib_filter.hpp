@@ -36,7 +36,7 @@ Returns 2 when the rare tag gives Negative Blueprint
 Returns 3 when Triboulet is available either in an Arcana pack in the second shop or on a Charm Tag on the small bind of the second ante
 */
 std::unique_ptr<SearchFilter> createFilter() {
-    auto filterFunc = [](const std::string& seed) -> int {
+    auto filterFunc = [](const std::string& seed, std::ostream& debugOut) -> int {
 
         std::vector<bool> selectedOptions(61, true);
         Instance inst = initInstance(seed, selectedOptions);

@@ -27,3 +27,9 @@ Filters are in the `filters` directory. It contains a README.md file to understa
 ## Next steps
 
 We would like to have a second, more tool that indexes all Balatro seeds, with tags about specifics of a seed (for example, Perkeo on first Charm Tag). To be able to scan a big number of seeds, we would need a lot of threads available, and a networking capability to manage the workload across several nodes.
+
+### Opti ideas
+  Better optimization approaches for this codebase would be:
+  - SIMD vectorization (AVX-512) to process multiple seeds per CPU core
+  - Memory optimizations (pooling, reducing string ops)
+  - Algorithmic improvements (early pruning, parallel filter chains)

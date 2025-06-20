@@ -11,7 +11,7 @@ Instance initInstance(const std::string& seed, std::vector<bool> selectedOptions
 extern const char* CHARM_TAG;
 
 std::unique_ptr<SearchFilter> createFilter() {
-    auto filterFunc = [](const std::string& seed) -> int {
+    auto filterFunc = [](const std::string& seed, std::ostream& debugOut) -> int {
         std::vector<bool> selectedOptions(61, true);
         Instance inst = initInstance(seed, selectedOptions);
         

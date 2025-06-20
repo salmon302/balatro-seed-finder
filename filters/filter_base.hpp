@@ -8,6 +8,7 @@
 #include "../instance.hpp"
 #include "../util.hpp"
 #include "../items.hpp"
+#include "../pack.hpp"
 
 struct FilterResult {
     std::string name;
@@ -29,7 +30,7 @@ struct FilterResult {
 class SearchFilter {
 public:
     virtual ~SearchFilter() = default;
-    virtual int apply(const std::string& seed) = 0;
+    virtual int apply(const std::string& seed, std::ostream& debugOut = std::cout) = 0;
     virtual std::vector<std::string> getResultNames() const = 0;
     virtual std::string getName() const = 0;
 };
@@ -37,18 +38,18 @@ public:
 // Generic function pointer filter for custom filters
 class CustomFilter : public SearchFilter {
 private:
-    std::function<int(const std::string&)> filterFunc;
+    std::function<int(const std::string&, std::ostream&)> filterFunc;
     std::vector<std::string> resultNames;
     std::string filterName;
 
 public:
-    CustomFilter(std::function<int(const std::string&)> func,
+    CustomFilter(std::function<int(const std::string&, std::ostream&)> func,
                  const std::vector<std::string>& names,
                  const std::string& name = "Custom Filter")
         : filterFunc(func), resultNames(names), filterName(name) {}
 
-    int apply(const std::string& seed) override {
-        return filterFunc(seed);
+    int apply(const std::string& seed, std::ostream& debugOut = std::cout) override {
+        return filterFunc(seed, debugOut);
     }
 
     std::vector<std::string> getResultNames() const override {
@@ -62,7 +63,7 @@ public:
 
 // Utility function to create a custom filter with lambda
 std::unique_ptr<SearchFilter> createCustomFilter(
-    std::function<int(const std::string&)> filterFunc,
+    std::function<int(const std::string&, std::ostream&)> filterFunc,
     const std::vector<std::string>& resultNames,
     const std::string& name = "Custom Filter") {
     return std::make_unique<CustomFilter>(filterFunc, resultNames, name);

@@ -21,7 +21,7 @@ Returns 1 when Telescope is found on first Ante
 Returns 2 when Observatory is found on second Ante
 */
 std::unique_ptr<SearchFilter> createFilter() {
-    auto filterFunc = [](const std::string& seed) -> int {
+    auto filterFunc = [](const std::string& seed, std::ostream& debugOut) -> int {
 
         std::vector<bool> selectedOptions(61, true);
         Instance inst = initInstance(seed, selectedOptions);

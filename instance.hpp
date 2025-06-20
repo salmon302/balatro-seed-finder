@@ -2,7 +2,10 @@
 #include <iomanip>
 #include <string>
 #include "bitmap_lock.hpp"
+#include "util.hpp"
+#include "items.hpp"
 #pragma once
+
 struct Cache {
     std::map<std::string, double> nodes;
     bool generatedFirstPack;

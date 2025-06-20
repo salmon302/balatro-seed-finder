@@ -36,7 +36,7 @@ echo "Building immolate with filter: $FILTER_NAME"
 FILTER_DEF="-DSELECTED_FILTER=\"filters/${FILTER_NAME}_filter.hpp\""
 
 # Compile directly with g++, defining the filter to include
-g++ -std=c++14 -DENABLE_LOGS -O3 "$FILTER_DEF" -ffp-contract=off -fexcess-precision=standard -o "dist/immolate_${FILTER_NAME}" immolate.cpp
+g++ -std=c++14 -g -DENABLE_LOGS -O3 "$FILTER_DEF" -ffp-contract=off -fexcess-precision=standard -o "dist/immolate_${FILTER_NAME}" immolate.cpp
 
 # Check if compilation was successful
 if [ $? -eq 0 ]; then
