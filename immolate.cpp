@@ -12,7 +12,9 @@
 #include <fstream>
 #include <functional>
 #include <memory>
-#include "immolate.hpp"
+#include <getopt.h>
+#include <cstdlib>
+#include "rand_util.hpp"
 
 #include "filters/filter_base.hpp"
 // Conditional filter inclusion based on preprocessor definition
@@ -50,6 +52,18 @@ SearchFilter* getCurrentFilter() {
         g_currentFilter = createFilter(); // Each filter file implements this
     }
     return g_currentFilter.get();
+}
+
+void printUsage(const char* programName) {
+    std::cout << "Usage: " << programName << " [OPTIONS]\n";
+    std::cout << "Options:\n";
+    std::cout << "  -s, --seed SEED      Start from specific 8-character seed (A-Z, 1-9)\n";
+    std::cout << "  -t, --threads NUM    Number of threads to use (default: auto-detect)\n";
+    std::cout << "  -d, --debug          Enable debug mode (requires --seed)\n";
+    std::cout << "  -h, --help           Show this help message\n";
+    std::cout << "\nExample:\n";
+    std::cout << "  " << programName << " --seed AAAAAAAA --threads 8\n";
+    std::cout << "  " << programName << " -s AAAAAAAA -d\n";
 }
 
 int applyCurrentFilter(const std::string& seed, std::ostream& debugOut) {
@@ -194,26 +208,63 @@ int main(int argc, char* argv[]) {
     std::mutex csvMutex;
     SearchStats stats;
     
-    // Parse command line arguments
+    // Parse command line arguments using getopt
     uint64_t startSeedNumber = 0;
     bool debugMode = false;
     std::string debugSeed;
+    unsigned int numThreads = 0; // 0 means auto-detect
     
-    if (argc > 1) {
-        std::string startSeedStr = argv[1];
-        if (startSeedStr.length() == 8) {
-            startSeedNumber = seedToNumber(startSeedStr);
-            debugSeed = startSeedStr;
-            std::cout << "Starting from seed: " << startSeedStr << " (" << startSeedNumber << ")" << std::endl;
-            
-            // Check for debug flag
-            if (argc > 2 && std::string(argv[2]) == "-d") {
+    static struct option long_options[] = {
+        {"seed", required_argument, 0, 's'},
+        {"threads", required_argument, 0, 't'},
+        {"debug", no_argument, 0, 'd'},
+        {"help", no_argument, 0, 'h'},
+        {0, 0, 0, 0}
+    };
+    
+    int option_index = 0;
+    int c;
+    
+    while ((c = getopt_long(argc, argv, "s:t:dh", long_options, &option_index)) != -1) {
+        switch (c) {
+            case 's':
+                if (strlen(optarg) == 8) {
+                    debugSeed = optarg;
+                    startSeedNumber = seedToNumber(debugSeed);
+                    std::cout << "Starting from seed: " << debugSeed << " (" << startSeedNumber << ")" << std::endl;
+                } else {
+                    std::cerr << "Error: Invalid seed format. Expected 8 characters (A-Z, 1-9)." << std::endl;
+                    return 1;
+                }
+                break;
+            case 't':
+                numThreads = std::stoul(optarg);
+                if (numThreads == 0) {
+                    std::cerr << "Error: Number of threads must be greater than 0." << std::endl;
+                    return 1;
+                }
+                break;
+            case 'd':
                 debugMode = true;
-                std::cout << "Debug mode enabled for seed: " << startSeedStr << std::endl;
-            }
-        } else {
-            std::cout << "Invalid seed format. Expected 8 characters (A-Z, 1-9). Starting from AAAAAAAA." << std::endl;
+                break;
+            case 'h':
+                printUsage(argv[0]);
+                return 0;
+            case '?':
+                // getopt_long already printed an error message
+                printUsage(argv[0]);
+                return 1;
+            default:
+                printUsage(argv[0]);
+                return 1;
         }
+    }
+    
+    // Validate arguments
+    if (debugMode && debugSeed.empty()) {
+        std::cerr << "Error: Debug mode requires a seed. Use --seed option." << std::endl;
+        printUsage(argv[0]);
+        return 1;
     }
     
     // Handle debug mode
@@ -249,7 +300,7 @@ int main(int argc, char* argv[]) {
     std::stringstream ss;
     ss << std::put_time(std::localtime(&time_t), "%Y%m%d_%H%M%S");
 
-    std::string csvFilename = "matches_" + ss.str() + ".csv";
+    std::string csvFilename = "dist/matches_" + ss.str() + ".csv";
     
     #ifdef ENABLE_LOGS
 
@@ -281,8 +332,11 @@ int main(int argc, char* argv[]) {
     // Create null stream for filter debug output (since debug mode is disabled in normal search)
     std::ofstream nullStream("/dev/null");
     
-    unsigned int numThreads = std::thread::hardware_concurrency();
-    if (numThreads == 0) numThreads = 4;
+    // Use specified thread count or auto-detect
+    if (numThreads == 0) {
+        numThreads = std::thread::hardware_concurrency();
+        if (numThreads == 0) numThreads = 4; // Fallback if auto-detection fails
+    }
     
     auto startTime = std::chrono::steady_clock::now();
     

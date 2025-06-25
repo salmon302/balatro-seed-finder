@@ -5,10 +5,9 @@
 #include <atomic>
 #include <functional>
 #include <memory>
+#include "../rand_util.hpp"
 #include "../instance.hpp"
-#include "../util.hpp"
 #include "../items.hpp"
-#include "../pack.hpp"
 
 struct FilterResult {
     std::string name;

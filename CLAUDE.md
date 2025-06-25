@@ -2,6 +2,9 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## General Guidelines
+- When building using tools, always build from root directory (example : ./tools/build.sh perkeo)
+
 ## Building and Running
 
 ### Build System

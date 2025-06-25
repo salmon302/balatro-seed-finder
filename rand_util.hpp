@@ -11,7 +11,7 @@
 
 #define INLINE_FORCE __attribute__((always_inline)) inline
 
-const uint64_t MAX_UINT64 = 18446744073709551615ull;
+constexpr uint64_t MAX_UINT64 = 18446744073709551615ull;
 
 typedef union DoubleLong {
     double dbl;
@@ -73,13 +73,9 @@ struct LuaRandom {
     }
 };
 
-double fract(double n) {
-    return fmod(n, 1);
-};
-
 INLINE_FORCE double pseudohash(const std::string& s) {
-    static const double MAGIC1 = 1.1239285023;
-    static const double PI = 3.141592653589793116;
+    static constexpr double MAGIC1 = 1.1239285023;
+    static constexpr double PI = 3.141592653589793116;
     
     double num = 1.0;
     const size_t len = s.length();
@@ -88,30 +84,24 @@ INLINE_FORCE double pseudohash(const std::string& s) {
     for (size_t i = 0; i < len; i++) {
         // Inline division (still exact)
         double temp = MAGIC1 / num * data[len-1-i] * PI + PI * (len-i);
-        // Inline fract() to avoid function call
         num = temp - std::floor(temp);
     }
     
     return std::isnan(num) ? std::numeric_limits<double>::quiet_NaN() : num;
 };
 
-const double inv_prec = std::pow(10.0, 13);
-const double two_inv_prec = std::pow(2.0, 13);
-const double five_inv_prec = std::pow(5.0, 13);
+constexpr double inv_prec = 10000000000000.0;  // std::pow(10.0, 13)
+constexpr double two_inv_prec = 8192.0;         // std::pow(2.0, 13)
+constexpr double five_inv_prec = 1220703125.0;  // std::pow(5.0, 13)
 
 INLINE_FORCE double round13(double x) {
     double tentative = std::floor(x * inv_prec) / inv_prec;
-    double truncated = std::fmod(x * two_inv_prec, 1.0) * five_inv_prec;
-    if (tentative != x && tentative != std::nextafter(x, 1) && std::fmod(truncated, 1.0) >= 0.5) {
+    // Optimize fmod(x, 1.0) = x - floor(x)
+    double temp1 = x * two_inv_prec;
+    double truncated = (temp1 - std::floor(temp1)) * five_inv_prec;
+    double temp2 = truncated;
+    if (tentative != x && tentative != std::nextafter(x, 1) && (temp2 - std::floor(temp2)) >= 0.5) {
         return (std::floor(x * inv_prec) + 1) / inv_prec;
     }
     return tentative;
-}
-
-INLINE_FORCE bool fast_string_equals(const std::string& a, const char* b) {
-    return a.length() > 0 && a[0] == b[0] && a == b;
-}
-
-INLINE_FORCE bool fast_string_equals(const std::string& a, const std::string& b) {
-    return a.length() > 0 && a[0] == b[0] && a == b;
 }
