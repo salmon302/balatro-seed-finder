@@ -198,7 +198,11 @@ int main(int argc, char *argv[])
     {
         std::string startSeedStr = argv[1];
         Instance::Instance inst(startSeedStr);
-        inst.initLocks(1, false, false);
+        // respect global env when available
+        {
+            EnvConfig e = getGlobalEnv();
+            inst.initLocks(1, e.freshProfile, e.freshRun);
+        }
         simulate_enum(inst);
     }
     return 0;

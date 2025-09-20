@@ -4,23 +4,22 @@
 
 namespace Items {
 
-    constexpr std::array<const char*, static_cast<size_t>(Items::Joker::COUNT)> JOKER_NAMES = {
-        // Common Items::Jokers (0-60)
+    // Clean, double-braced initializer for JOKER_NAMES to ensure strict aggregate initialization
+    constexpr std::array<const char*, 150> JOKER_NAMES = {{
         "Joker", "Greedy Joker", "Lusty Joker", "Wrathful Joker", "Gluttonous Joker",
         "Jolly Joker", "Zany Joker", "Mad Joker", "Crazy Joker", "Droll Joker",
         "Sly Joker", "Wily Joker", "Clever Joker", "Devious Joker", "Crafty Joker",
-        "Half Joker", "Credit Card", "Banner", "Mystic Summit", "8 Ball",
+        "Half Joker", "Credit Card", "Banner", "Mystic Summit", "Eight Ball",
         "Misprint", "Raised Fist", "Chaos the Clown", "Scary Face", "Abstract Joker",
         "Delayed Gratification", "Gros Michel", "Even Steven", "Odd Todd", "Scholar",
         "Business Card", "Supernova", "Ride the Bus", "Egg", "Runner",
         "Ice Cream", "Splash", "Blue Joker", "Faceless Joker", "Green Joker",
         "Superposition", "To Do List", "Cavendish", "Red Card", "Square Joker",
-        "Riff-raff", "Photograph", "Reserved Parking", "Mail In Rebate", "Hallucination",
+        "Riff-Raff", "Photograph", "Reserved Parking", "Mail-In Rebate", "Hallucination",
         "Fortune Teller", "Juggler", "Drunkard", "Golden Joker", "Popcorn",
         "Walkie Talkie", "Smiley Face", "Golden Ticket", "Swashbuckler", "Hanging Chad",
         "Shoot the Moon",
-
-        // Uncommon Items::Jokers (61-124)
+        // Uncommon 61-124
         "Joker Stencil", "Four Fingers", "Mime", "Ceremonial Dagger", "Marble Joker",
         "Loyalty Card", "Dusk", "Fibonacci", "Steel Joker", "Hack",
         "Pareidolia", "Space Joker", "Burglar", "Blackboard", "Sixth Sense",
@@ -34,16 +33,14 @@ namespace Items {
         "Arrowhead", "Onyx Agate", "Glass Joker", "Showman", "Flower Pot",
         "Merry Andy", "Oops! All 6s", "The Idol", "Seeing Double", "Matador",
         "Satellite", "Cartomancer", "Astronomer", "Bootstraps",
-
-        // Rare Items::Jokers (125-144)
+        // Rare 125-144
         "DNA", "Vagabond", "Baron", "Obelisk", "Baseball Card",
         "Ancient Joker", "Campfire", "Blueprint", "Wee Joker", "Hit the Road",
         "The Duo", "The Trio", "The Family", "The Order", "The Tribe",
         "Stuntman", "Invisible Joker", "Brainstorm", "Drivers License", "Burnt Joker",
-
-        // Legendary Items::Jokers (145-149)
+        // Legendary 145-149
         "Canio", "Triboulet", "Yorick", "Chicot", "Perkeo"
-    };
+    }};
 
     constexpr std::array<const char*, static_cast<size_t>(Items::Tag::COUNT)> TAG_NAMES = {
         "Uncommon Tag", "Rare Tag", "Negative Tag", "Foil Tag", "Holographic Tag",

@@ -9,6 +9,8 @@
 #include "../instance.hpp"
 #include "../items.hpp"
 
+#include "../env.hpp"
+
 struct FilterResult {
     std::string name;
     std::atomic<uint64_t> count{0};
@@ -32,6 +34,12 @@ public:
     virtual int apply(const std::string& seed, std::ostream& debugOut = std::cout) = 0;
     virtual std::vector<std::string> getResultNames() const = 0;
     virtual std::string getName() const = 0;
+    // Optional: return a structured JSON description for a given seed. Default empty string.
+    // Filters may override to provide detailed card lists, timings, etc.
+    virtual std::string describeMatch(const std::string& seed) const {
+        (void)seed; // unused in default
+        return std::string();
+    }
 };
 
 // Generic function pointer filter for custom filters

@@ -32,32 +32,105 @@ Basic demonstration filter that only checks for a Charm Tag in ante 1:
 
 Result names: "Charm Tag Found"
 
+### 5. `synergy_enum_filter.hpp` - Synergy-Based Early Game Combos
+Searches ante 1 shop items for strong Joker pair synergies (explicit and theoretical) such as:
+- Pareidolia + any face-card payoff (Scary Face, Smiley Face, Photograph, Sock and Buskin, Midas Mask)
+- Smeared Joker + suit-scalers (Greedy/Lusty/Wrathful/Gluttonous, Bloodstone, Arrowhead, Onyx Agate)
+- Astronomer + Constellation/Satellite packages
+- Four Fingers + straight/flush supports (Crazy, Droll, Shortcut, Space Joker)
+- Fortune Teller + Tarot generation (Hallucination, Cartomancer, Vagabond)
+- Superposition + straight enablers (Four Fingers/Shortcut)
+- Riff-Raff + Abstract Joker (free jokers increase Abstract scaling)
+- Blueprint/Brainstorm + high-value copy targets (Constellation, Astronomer, Baron, Fortune Teller, Obelisk, Satellite, Campfire, Hiker, Bootstraps)
+- Baron + Shoot the Moon (Kings/Queens in hand multipliers)
+- Hiker + Retriggerers (Dusk, Seltzer, Sock and Buskin, Hack)
+- Vampire + Midas Mask (steady enhanced faces to feed Vampire)
+- Gift Card + Swashbuckler (sell value ramp → Mult)
+- Hologram + DNA/Certificate (more cards added → faster scaling)
+- Bootstraps + Bull (cash → Mult and Chips)
+- Multi-face payoff stack (2+ face payoffs without Pareidolia)
+- Ceremonial Dagger + Egg/Gift Card
+- Egg + Swashbuckler
+- Campfire + Gift Card
+- Blackboard + Spade/Club scalers (Onyx Agate, Wrathful, Arrowhead)
+- Smeared + Ancient Joker
+- Hack + Walkie Talkie
+- Hack + Fibonacci
+- Baseball Card + key Uncommons (Hiker, Constellation, Satellite)
+- To the Moon + Bull/Bootstraps
+- Steel Joker + The Chariot
+- Stone Joker + The Tower
+- Glass Joker + Justice
+- Golden Ticket + The Devil
+- Rough Gem + The Star
+- Bloodstone + The Sun
+- Arrowhead + The World
+- Onyx Agate + The Moon
+- Vampire + Enhancing Tarots (Hierophant/Empress/Devil/Chariot)
+- Fortune Teller + The Emperor
+- Constellation + The High Priestess
+- Flash Card + Reroll vouchers (Surplus/Glut) or D6 Tag
+- To the Moon + Investment Tag
+- Throwback + Speed Tag
+- Constellation/Astronomer + Planet Merchant/Tycoon vouchers
+- Fortune Teller/Cartomancer + Tarot Merchant/Tycoon vouchers
+- Triboulet + face multipliers (Baron/Shoot the Moon/Photograph)
+- Yorick + discard economy (Mail-In Rebate, Trading Card, Hit the Road)
+- Red Card + Campfire
+- Smeared + The Idol
+- Seeing Double + Onyx Agate
+- Hack + Even Steven/Odd Todd
+- Astronomer + Satellite + Bootstraps/Bull
+
+Result names: a list covering each synergy above.
+
+### 6. `erratic_enum_filter.hpp` - Erratic Deck Synergy Combos
+Targets seeds that are especially potent on the Erratic Deck (randomized ranks/suits). It sets the deck to "Erratic Deck" and searches ante 1 shop items for:
+- Smeared Joker packages:
+    - Smeared + suit scalers (Greedy/Lusty/Wrathful/Gluttonous, Bloodstone, Arrowhead, Onyx Agate)
+    - Smeared + Ancient Joker
+    - Smeared + The Idol
+- Pareidolia + any face-card payoff (Scary Face, Smiley Face, Photograph, Sock and Buskin, Midas Mask, Business Card, Reserved Parking)
+- Four Fingers + straight/flush supports (Crazy, Droll, Shortcut, Space Joker)
+- Hack + Even Steven/Odd Todd
+- Seeing Double + Onyx Agate
+- Suit-scaler + suit-conversion tarot:
+    - Onyx Agate + The Moon (Clubs)
+    - Arrowhead + The World (Spades)
+    - Bloodstone + The Sun (Hearts)
+    - Rough Gem + The Star (Diamonds)
+- Superposition + straight enabler (Four Fingers or Shortcut)
+
+Result names: a list covering each synergy above.
+
 ## Building with Filters
 
 Use the build script to compile with a specific filter:
 
-```bash
-cd include/tools
-./build_simple.sh <filter_name>
+```powershell
+tools\build.bat <filter_name>
 ```
 
 ### Examples
 
-```bash
+```powershell
 # Build with the original complete Perkeo filter
-./build_simple.sh perkeo
+tools\build.bat perkeo
 
 # Build with only Perkeo detection
-./build_simple.sh perkeo_only
+tools\build.bat perkeo_only
 
 # Build with any legendary joker detection
-./build_simple.sh any_legendary
+tools\build.bat any_legendary
 
 # Build with simple charm tag detection
-./build_simple.sh charm_tag
+tools\build.bat charm_tag
+
+# Build Erratic Deck synergy filter
+tools\build.bat erratic_enum
 ```
 
-The compiled executables are placed in `include/dist/` with names like `immolate_<filter_name>`.
+The compiled executables are placed in `dist/` with names like `immolate_<filter_name>.exe`.
 
 ## Creating Custom Filters
 

@@ -2,9 +2,12 @@
 
 #include "items_utils.hpp"
 #include "items.hpp"
+#include "items_to_string.hpp"
+#include "env.hpp"
 #include "items_choice.hpp"
 #include "rand_util.hpp"
 #include "bitmap_lock.hpp"
+#include "debug.hpp"
 #include <unordered_map>
 // #include <map>
 #include <array>
@@ -30,6 +33,8 @@ namespace Instance {
         std::string deck;
         std::string stake;
         bool showman;
+    // when true, intent is to enable all content regardless of selectedOptions state
+    bool forceAllContentFlag = true;
         int sixesFactor;
         long version;
         
@@ -56,14 +61,16 @@ namespace Instance {
         }
         
         // Fast random generation
+        // Use local LuaRandom instances for transient RNG usage to avoid
+        // writing to the member RNG on hot paths (reduces memory writes).
         double random(const std::string& ID) {
-            rng = LuaRandom(get_node(ID));
-            return rng.random();
+            LuaRandom local_rng(get_node(ID));
+            return local_rng.random();
         }
-        
+
         int randint(const std::string& ID, int min, int max) {
-            rng = LuaRandom(get_node(ID));
-            return rng.randint(min, max);
+            LuaRandom local_rng(get_node(ID));
+            return local_rng.randint(min, max);
         }
         
     public:
@@ -681,6 +688,86 @@ namespace Instance {
                 enumLocks.lock(Items::PlayedHand::FLUSH_FIVE);
                 enumLocks.lock(Items::PlayedHand::FLUSH_HOUSE);
             }
+            // Apply unlockedTags from global EnvConfig (if any). These are human-friendly names
+            try {
+                EnvConfig ge = getGlobalEnv();
+                if (!ge.unlockedTags.empty()) {
+                    // helper: normalize strings for comparison
+                    auto norm = [](const std::string &s) {
+                        std::string out; out.reserve(s.size());
+                        for (char c : s) {
+                            if (std::isalnum((unsigned char)c)) out.push_back((char)std::tolower((unsigned char)c));
+                        }
+                        return out;
+                    };
+                    // build map from normalized tag name -> enum
+                    for (size_t ti = 0; ti < static_cast<size_t>(Items::Tag::COUNT); ++ti) {
+                        std::string nom = norm(std::string(Items::toString(static_cast<Items::Tag>(ti))));
+                        (void)nom; // keep for clarity
+                    }
+                    for (const auto &tname : ge.unlockedTags) {
+                        std::string nt = norm(tname);
+                        bool found = false;
+                        for (size_t ti = 0; ti < static_cast<size_t>(Items::Tag::COUNT); ++ti) {
+                            std::string candidate = norm(std::string(Items::toString(static_cast<Items::Tag>(ti))));
+                            if (candidate == nt) {
+                                enumLocks.unlock(static_cast<Items::Tag>(ti));
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            // try permissive match: substring match
+                            for (size_t ti = 0; ti < static_cast<size_t>(Items::Tag::COUNT); ++ti) {
+                                std::string candidate = norm(std::string(Items::toString(static_cast<Items::Tag>(ti))));
+                                if (!nt.empty() && candidate.find(nt) != std::string::npos) {
+                                    enumLocks.unlock(static_cast<Items::Tag>(ti));
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                // Apply unlockedJokers from global EnvConfig (if any). These are human-friendly names
+                if (!ge.unlockedJokers.empty()) {
+                    auto norm = [](const std::string &s) {
+                        std::string out; out.reserve(s.size());
+                        for (char c : s) {
+                            if (std::isalnum((unsigned char)c)) out.push_back((char)std::tolower((unsigned char)c));
+                        }
+                        return out;
+                    };
+                    for (const auto &jname : ge.unlockedJokers) {
+                        std::string nj = norm(jname);
+                        bool found = false;
+                        for (size_t ji = 0; ji < static_cast<size_t>(Items::Joker::COUNT); ++ji) {
+                            std::string candidate = norm(std::string(Items::toString(static_cast<Items::Joker>(ji))));
+                            if (candidate == nj) {
+                                enumLocks.unlock(static_cast<Items::Joker>(ji));
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            // permissive substring match
+                            for (size_t ji = 0; ji < static_cast<size_t>(Items::Joker::COUNT); ++ji) {
+                                std::string candidate = norm(std::string(Items::toString(static_cast<Items::Joker>(ji))));
+                                if (!nj.empty() && candidate.find(nj) != std::string::npos) {
+                                    enumLocks.unlock(static_cast<Items::Joker>(ji));
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                // Debug: list any unlocked jokers applied
+                try {
+                    // gated debug output
+                    std::string line = "[initLocks] unlocked jokers:";
+                    for (const auto &j : ge.unlockedJokers) { line += ' '; line += j; }
+                    debug_println(line);
+                } catch(...) {}
+            } catch (...) {}
         }
 
         void initUnlocks(int ante, bool freshProfile) {
@@ -721,6 +808,13 @@ namespace Instance {
         
         void setDeck(const std::string& d) { deck = d; }
         void setStake(const std::string& s) { stake = s; }
+    // Additional setters to allow external env wiring
+    void setShowman(bool s) { showman = s; }
+    void setSixesFactor(int f) { sixesFactor = f; }
+    void setVersion(long v) { version = v; }
+    // forceAllContent is a higher-level option; store it so generation code may consult it.
+    void setForceAllContent(bool v) { forceAllContentFlag = v; }
+    bool getForceAllContent() const { return forceAllContentFlag; }
         
         // Voucher activation and unlocking
         void activateVoucher_enum(Items::Voucher voucher) {

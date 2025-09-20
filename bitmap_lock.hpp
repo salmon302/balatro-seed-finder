@@ -4,6 +4,7 @@
 #include <bitset>
 #include <iostream>
 #include <cstdlib>
+#include "logger.hpp"
 
 #ifndef INLINE_FORCE
 #define INLINE_FORCE __attribute__((always_inline)) inline
@@ -642,8 +643,8 @@ INLINE_FORCE void lockItem(LockBitset& lockBitmap, const std::string& itemName) 
     if (it != ITEM_TO_ID.end()) {
         lockBitmap.set(it->second);
     } else {
-        std::cerr << "ERROR: Trying to lock unknown item: '" << itemName << "'" << std::endl;
-        std::cerr << "This item needs to be added to ITEM_TO_ID mapping in bitmap_lock.hpp" << std::endl;
+               log_error("Trying to lock unknown item: '", itemName, "'");
+               log_error("This item needs to be added to ITEM_TO_ID mapping in bitmap_lock.hpp");
         std::abort();
     }
 }
@@ -657,8 +658,8 @@ INLINE_FORCE void unlockItem(LockBitset& lockBitmap, const std::string& itemName
     if (it != ITEM_TO_ID.end()) {
         lockBitmap.reset(it->second);
     } else {
-        std::cerr << "ERROR: Trying to unlock unknown item: '" << itemName << "'" << std::endl;
-        std::cerr << "This item needs to be added to ITEM_TO_ID mapping in bitmap_lock.hpp" << std::endl;
+               log_error("Trying to unlock unknown item: '", itemName, "'");
+               log_error("This item needs to be added to ITEM_TO_ID mapping in bitmap_lock.hpp");
         std::abort();
     }
 }

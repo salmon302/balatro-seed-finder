@@ -4,6 +4,7 @@
 #include <array>
 #include <string_view>
 #include <iostream>
+#include <vector>
 
 
 // High-performance enum-based item system for Balatro seed finder

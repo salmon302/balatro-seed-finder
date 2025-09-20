@@ -70,6 +70,9 @@
         "chrono": "cpp",
         "forward_list": "cpp",
         "charconv": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "system_error": "cpp",
+        "xlocale": "cpp",
+        "xmemory": "cpp"
     }
 }

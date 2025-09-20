@@ -108,8 +108,14 @@ namespace Items {
         bool isRetry = (item == static_cast<EnumType>(static_cast<std::underlying_type_t<EnumType>>(EnumType::INVALID)));
         if ((showman == false && locks.isLocked(item)) || isRetry) {
             int resample = 2;
+            // Pre-allocate a resample id string to avoid repeated temporaries
+            std::string resID;
+            resID.reserve(ID.size() + 16);
             while (true) {
-                rng = LuaRandom(get_node(ID + "_resample" + std::to_string(resample)));
+                resID = ID;
+                resID += "_resample";
+                resID += std::to_string(resample);
+                rng = LuaRandom(get_node(resID));
                 item = items[rng.randint(0, items.size()-1)];
                 resample++;
                 bool isNotRetry = (item != static_cast<EnumType>(static_cast<std::underlying_type_t<EnumType>>(EnumType::INVALID)));

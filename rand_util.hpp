@@ -36,10 +36,9 @@ struct LuaRandom {
             _randint();
         }
     }
-    LuaRandom() {
-        LuaRandom(0);
-    }
-    uint64_t _randint() {
+    LuaRandom() : LuaRandom(0) {}
+
+    INLINE_FORCE uint64_t _randint() {
         uint64_t z = 0;
         uint64_t r = 0;
         z = state[0];
@@ -60,15 +59,18 @@ struct LuaRandom {
         state[3] = z;
         return r;
     }
-    uint64_t randdblmem() {        
+
+    INLINE_FORCE uint64_t randdblmem() {        
         return (_randint() & 4503599627370495ull) | 4607182418800017408ull;
     }
-    double random() {
+
+    INLINE_FORCE double random() {
         dbllong u;
         u.ulong = randdblmem();
         return u.dbl - 1.0;
     }
-    int randint(int min, int max) {
+
+    INLINE_FORCE int randint(int min, int max) {
         return (int)(random()*(max-min+1))+min;
     }
 };

@@ -9,6 +9,7 @@ if [ $# -eq 0 ]; then
     echo "  perkeo_only       - Only Perkeo filter"
     echo "  any_legendary     - Any legendary joker filter"
     echo "  charm_tag         - Simple charm tag filter"
+    echo "  synergy_enum      - Early-game Joker synergy filter"
     echo ""
     echo "Example: $0 perkeo_only"
     exit 1
@@ -36,7 +37,7 @@ echo "Building immolate with filter: $FILTER_NAME"
 FILTER_DEF="-DSELECTED_FILTER=\"filters/${FILTER_NAME}_filter.hpp\""
 
 # Compile directly with g++, defining the filter to include
-g++ -std=c++14 -g -DENABLE_LOGS -O3 "$FILTER_DEF" -ffp-contract=off -fexcess-precision=standard -o "dist/immolate_${FILTER_NAME}" immolate.cpp
+g++ -std=c++14 -g -DENABLE_LOGS -O3 "$FILTER_DEF" -ffp-contract=off -fexcess-precision=standard -o "dist/immolate_${FILTER_NAME}" immolate.cpp env.cpp
 
 # Check if compilation was successful
 if [ $? -eq 0 ]; then
